@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dave’s Data · Platform Standing Map V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050806;--surface:#0a0f0c;--card:#0e1511;--line:#1c2b22;--text:#e8f0ea;--muted:#7a9484;--dim:#556b5d;
+  --lime:#00ff88;--amber:#ffb020;--blue:#4da3ff;--red:#ff5c5c;
+  --font:Inter,system-ui,sans-serif;--display:"Bebas Neue",sans-serif;--mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:15px/1.5 var(--font)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(800px 400px at 15% -10%,rgba(0,255,136,.09),transparent 50%),linear-gradient(rgba(0,255,136,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.025) 1px,transparent 1px);background-size:auto,40px 40px,40px 40px}
+.view{display:none;position:relative;z-index:1;min-height:100svh}.view.active{display:block}
+#hub{padding:32px 22px 60px;max-width:920px;margin:0 auto}
+.badge{display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime);border:1px solid rgba(0,255,136,.35);padding:7px 9px;background:rgba(0,255,136,.06)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,8vw,68px);letter-spacing:.03em;line-height:.95;margin:14px 0 10px}
+.sub{color:var(--muted);max-width:40em;margin:0 0 18px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.pill{display:inline-block;font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border:1px solid var(--line);color:var(--muted);margin:0 6px 6px 0}
+.pill.on{background:var(--lime);color:#04140a;border-color:var(--lime)}
+.pill.warn{background:var(--amber);color:#2a1a00;border-color:var(--amber)}
+.pill.blue{background:var(--blue);color:#001528;border-color:var(--blue)}
+.hub-grid{display:grid;gap:10px;margin:0 0 14px}
+.hub-btn{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;width:100%;text-align:left;padding:18px;border:1px solid rgba(0,255,136,.28);background:rgba(0,255,136,.04);color:#fff;cursor:pointer;font:inherit}
+.hub-btn:hover{background:rgba(0,255,136,.1)}
+.hub-btn strong{display:block;font-size:16px;margin-bottom:4px}
+.hub-btn small{color:var(--muted);font-size:13px}
+.hub-btn .go{color:var(--lime);font-weight:800}
+.hub-secondary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.hub-secondary button{min-height:52px;border:1px solid rgba(0,255,136,.35);background:transparent;color:var(--lime);font:800 11px/1.1 var(--font);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:10px}
+.hub-secondary button:hover{background:rgba(0,255,136,.1)}
+@media(max-width:560px){.hub-secondary{grid-template-columns:1fr}}
+.room{padding-bottom:80px}
+.room-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(5,8,6,.92);backdrop-filter:blur(8px);z-index:3}
+.room-bar .back{border:0;background:transparent;color:var(--lime);font:700 13px/1 var(--font);cursor:pointer;display:flex;gap:6px;align-items:center}
+.chip{font:700 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:6px 8px}
+.room-hero{padding:28px 22px 10px;background:linear-gradient(180deg,rgba(0,255,136,.06),transparent)}
+.room-hero-inner{max-width:820px;margin:0 auto}
+.eyebrow{margin:0 0 8px;color:var(--lime);font:800 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.room-hero h1{font-family:var(--display);font-weight:400;font-size:clamp(34px,6vw,52px);margin:0 0 8px;letter-spacing:.03em}
+.room-hero p{margin:0;color:var(--muted);max-width:40em}
+.room-body{max-width:820px;margin:0 auto;padding:18px 22px}
+.block{margin:0 0 28px}
+.label{font:700 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+.block h2{font-size:22px;margin:0 0 12px;letter-spacing:-.02em}
+.card{background:var(--card);border:1px solid var(--line);padding:14px 16px;margin:0 0 10px}
+.card.forest{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.06)}
+ul.clean{margin:0;padding-left:1.15rem;color:var(--muted)}
+ul.clean li{margin:6px 0} ul.clean strong{color:var(--text)}
+table.data{width:100%;border-collapse:collapse;font-size:13px}
+table.data th,table.data td{border-top:1px solid var(--line);padding:9px 7px;vertical-align:top;text-align:left}
+table.data th{color:var(--dim);font:600 10px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.goal-list{display:grid;gap:8px}
+.goal-btn{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;padding:14px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;font:inherit}
+.goal-btn:hover{border-color:rgba(0,255,136,.4)}
+.goal-btn .num{font:700 14px/1 var(--mono);color:var(--lime)}
+.goal-btn strong{display:block}
+.goal-btn small{color:var(--muted);font-size:12.5px}
+.goal-btn .arrow{color:var(--lime)}
+.room-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.room-nav button{min-height:48px;padding:0 16px;border:1px solid rgba(0,255,136,.4);background:var(--lime);color:#04140a;font:800 12px/1 var(--font);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.room-nav button.ghost{background:transparent;color:var(--lime)}
+.qbox{display:grid;gap:8px}
+.q{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:14px}
+.q input{margin-top:3px}
+.call{border:1px solid rgba(0,255,136,.35);background:rgba(0,255,136,.06);padding:14px;margin:0 0 18px;color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="hub" class="view active">
+  <div class="badge">V2 · Interactive · Dave Probst · Confidential</div>
+  <h1>DAVE’S DATA</h1>
+  <p class="sub">Platform Standing Map — click anything. See what we’ve done, haven’t, know, and don’t. Built for costing an enterprise CureData application (and the site), not for theater.</p>
+  <div class="call">
+    <strong>Share loop:</strong> OneDrive folder or private GitHub for back-and-forth → see <em>Share with Dave</em>.
+    Dave clicks a domain → emails questions → we deepen that room and bump the version.
+  </div>
+  <div class="legend">
+    <span class="pill on">Built</span>
+    <span class="pill warn">Partial / model</span>
+    <span class="pill">Not built</span>
+    <span class="pill blue">Dive</span>
+  </div>
+
+  <p class="label" style="margin:0 0 8px">Four planes</p>
+  <div class="hub-grid">
+    <button class="hub-btn" data-go="experience"><div><strong>Experience</strong><small>CU · sponsor · advisor · HO · site</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="domain"><div><strong>Domain</strong><small>CCR · connections · decisions · savings · gainshare · opportunities</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="integration"><div><strong>Integration</strong><small>Payers · portals · EDI · Rx/care · comms · pay</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="control"><div><strong>Control</strong><small>Trust · BAA · envs · audit · IR</small></div><div class="go">→</div></button>
+  </div>
+
+  <p class="label" style="margin:18px 0 8px">Workbenches</p>
+  <div class="hub-grid">
+    <button class="hub-btn" data-go="components"><div><strong>Component BOM C-01…C-15</strong><small>What must exist to stand the enterprise app</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="matrix"><div><strong>Interaction matrix</strong><small>Click → logic → data → kick-out</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="vendors"><div><strong>Who we could work with</strong><small>Partner / vendor classes for standing</small></div><div class="go">→</div></button>
+    <button class="hub-btn" data-go="phasing"><div><strong>P0–P3 phasing</strong><small>How to quote cost &amp; time</small></div><div class="go">→</div></button>
+  </div>
+
+  <div class="hub-secondary">
+    <button data-go="share">Share with Dave</button>
+    <button data-go="questions">Open questions</button>
+  </div>
+</div>
+
+<div id="experience" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Experience plane</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Plane 01</p>
+      <h1>Experience</h1>
+      <p>What humans click — site, demos, future apps.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Where Experience sits today</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Partial</span><span class="pill on">Site craft live</span><span class="pill ">Enterprise app not up</span><p style="margin:12px 0 0">Marketing site = gated CureData concept (Revision hub). Schooley founders demo IA locked; clickable journey build in flight. No production CU/CS/Advisor apps with PHI.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Surfaces</p>
+      <h2>What humans click</h2>
+      <table class="data"><tr><th>Surface</th><th>Job</th><th>Now</th><th>Unknown</th></tr><tr><td>Coverage User app</td><td>Connect · decide · cure</td><td>Concept UI on site / scripted demos</td><td>Real connection UX at scale</td></tr><tr><td>Coverage Sponsor app</td><td>Activate · roster · reports</td><td>Benefit pages + narrative</td><td>Sponsor tenant + eligibility ops</td></tr><tr><td>Advisor / MC workspace</td><td>Apply · pitch · place · track · earn</td><td>Designed in founders IA</td><td>Auth, CRM, assets CMS</td></tr><tr><td>Head Office console</td><td>Oversee franchisees · cohorts · rollups</td><td>Greg explicit ask</td><td>RBAC model for SM HO</td></tr><tr><td>Marketing / trust</td><td>Door · Meet Cura · Connect · /security</td><td>Live on branch PR #9</td><td>Vercel team access for Brian previews</td></tr></table>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we might work with</p>
+      <h2>Experience plane partners</h2>
+      <ul class="clean"><li><strong>Product/UX eng</strong> — already: Jonathan Poma / Symmitri craft on marketing site</li><li><strong>Design systems / front-end firm</strong> — accelerate CU + Partner OS once IA frozen</li><li><strong>Accessibility / mobile QA</strong> — coverage-user north star is phone-first</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time levers</p>
+      <h2>What moves the needle</h2>
+      <ul class="clean"><li>Number of distinct apps vs one shell with role modes</li><li>How much of Schooley demo is reusable production UI vs throwaway</li><li>Partner white-label / co-brand requirements (SM brand under advisor)</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Open for Dave</p>
+      <h2>Questions</h2>
+      <ul class="clean"><li>Single multi-tenant app with role switchers, or separate deployables per persona?</li><li>What’s the minimum Advisor OS for Oct 1 beta (20 franchisees)?</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="domain" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain plane</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Plane 02</p>
+      <h1>Domain</h1>
+      <p>Business truth. Click into each object.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Domain = business truth</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Mostly designed</span><span class="pill ">Not implemented</span><p style="margin:12px 0 0">We have clear domain language (Cure Cost Records, connections, decisions, savings, gainshare, opportunities). Persistence, invariants, and ledgers are <strong>not</strong> stood up in production.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Core objects</p>
+      <h2>Click any — this is the ontology</h2>
+
+      <div class="goal-list">
+        <button class="goal-btn" data-go="d-ccr"><span class="num">01</span><div><strong>Cure Cost Records</strong><small>PHI-bearing cost objects</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-conn"><span class="num">02</span><div><strong>Connections &amp; auth</strong><small>How we get permission + tokens</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-dec"><span class="num">03</span><div><strong>Decisions &amp; outcomes</strong><small>Cura proposes · user responds</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-sav"><span class="num">04</span><div><strong>Savings ledger</strong><small>EE vs ER attribution</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-gain"><span class="num">05</span><div><strong>Gainshare</strong><small>Pots · splits · statements</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-opp"><span class="num">06</span><div><strong>Opportunities</strong><small>Advisor pipeline stages</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="d-ten"><span class="num">07</span><div><strong>Tenancy &amp; identity</strong><small>Person · org · role</small></div><span class="arrow">→</span></button>
+      </div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known economics (working)</p>
+      <h2>Numbers already positioned</h2>
+      <table class="data"><tr><th>Metric</th><th>Value</th><th>Status</th></tr><tr><td>Employer savings / connected hh / yr</td><td>$1,618</td><td>ASSUMED working · positioned to SM</td></tr><tr><td>Employee savings / connected hh / yr</td><td>$817</td><td>ASSUMED working · positioned to SM</td></tr><tr><td>Combined buyer value</td><td>$2,435</td><td>Derived</td></tr><tr><td>Gainshare pot (50% of ER)</td><td>$809</td><td>Model</td></tr><tr><td>SM @ 25%</td><td>$202 / hh / yr</td><td>Working partner case</td></tr></table>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknowns</p>
+      <h2>Dave should pressure these</h2>
+      <ul class="clean"><li>Canonical schema for Cure Cost Record (versions, sources, confidence)</li><li>Savings methodology that survives employer CFO + auditor</li><li>Idempotency + dispute workflow when payer data revises</li><li>Member matching strategy across payers (demographic vs member id)</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-ccr" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · CCR</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 01</p>
+      <h1>Cure Cost Records</h1>
+      <p>PHI-bearing cost objects.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Cure Cost Records</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Designed conceptually</span><span class="pill ">No PHI store</span><p style="margin:12px 0 0">Atomic unit of work for Cura. Claims, EOBs, Rx fills, care events, coverage payments — normalized into records Cura can act on.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Fields we expect</p>
+      <h2>Minimum viable record</h2>
+      <table class="data"><tr><th>Field</th><th>Why</th><th>Known?</th></tr><tr><td>record_id</td><td>Stable internal id</td><td>Need schema</td></tr><tr><td>member_wbsid / household</td><td>Join without EEID collisions</td><td>Principle known (Waypoint WBSID)</td></tr><tr><td>source (API/portal/EDI/manual)</td><td>Provenance</td><td>Classes known</td></tr><tr><td>cost_class (Rx/care/coverage)</td><td>Routing to engines</td><td>Known</td></tr><tr><td>payable / billed / allowed</td><td>Math inputs</td><td>Per-source mapping TBD</td></tr><tr><td>status (uncured/in-treatment/cured)</td><td>UX + ledger</td><td>Demo states exist</td></tr><tr><td>confidence / completeness</td><td>When to ask user</td><td>Unknown thresholds</td></tr></table>
+
+    </section>
+    <section class="block">
+      <p class="label">Vendors / build</p>
+      <h2>Who touches this</h2>
+      <ul class="clean"><li>Cloud PHI store + KMS (TBD — BAA required)</li><li>Ingestion eng + data quality partner</li><li>Possibly clearinghouse for EDI-sourced records</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost drivers</p>
+      <h2>Why this is expensive</h2>
+      <ul class="clean"><li>Retention + audit volume</li><li>Reprocessing when sources change</li><li>De-dupe across portals/APIs</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-conn" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Connections</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 02</p>
+      <h1>Connections & auth</h1>
+      <p>Permission + tokens.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Connections & authorization</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Legal drafts</span><span class="pill ">Broker not built</span><p style="margin:12px 0 0">Authority stack: Connection Agreement → payer/portal OAuth or portal token → vault → refresh → revoke. Site currently shows portal UX as concept only (no password storage claim).</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Layers</p>
+      <h2>Permission stack</h2>
+      <ul class="clean"><li><strong>Legal:</strong> Connection Agreement + JIT auths per action (trust stack)</li><li><strong>Technical:</strong> OAuth patient-access / SMART-ish patterns where available; portal connectors where not</li><li><strong>Sponsor path:</strong> optional EDI/eligibility under plan BAA</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who to work with</p>
+      <h2>Integration reality</h2>
+      <ul class="clean"><li>Payer developer programs (per major national + regional)</li><li>Patient-access / aggregation platforms (evaluate build-vs-buy — Dave’s call)</li><li>Counsel for Connection Agreement (already in trust track)</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknowns</p>
+      <h2>Open</h2>
+      <ul class="clean"><li>Which payers are P0 for Oct design partners</li><li>Aggregator vs direct API first</li><li>Portal connection policy risk appetite</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-dec" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Decisions</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 03</p>
+      <h1>Decisions & outcomes</h1>
+      <p>Cura proposes · user responds.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Decisions & outcomes</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Demo scripted</span><span class="pill ">Engine not prod</span><p style="margin:12px 0 0">Cura proposes; user responds; outcome recorded. Demo course has scripted cures (Rx, care, coverage). Production needs rules + models + explainability hooks.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Loop</p>
+      <h2>Runtime</h2>
+      <ul class="clean"><li>Ingest → normalize → detect opportunity → queue decision card</li><li>User auth → execute/message channel → capture before/after $</li><li>Feed savings ledger + learning loop (internal, not train-on-PHI externally)</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2>Partners</h2>
+      <ul class="clean"><li>Rules eng + clinical/financial SME</li><li>Private model infra (US, no train-on-customer-PHI)</li><li>Pharmacy price / coupon data licenses</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-sav" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Savings</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 04</p>
+      <h1>Savings ledger</h1>
+      <p>EE vs ER attribution.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Savings ledger</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Economics model</span><span class="pill ">Ledger not built</span><p style="margin:12px 0 0">Hardest credibility object for founders/CFOs. Must attribute <strong>employee</strong> vs <strong>employer</strong> savings with a method Greg can show (employer path “less tangible”).</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Requirements from SM</p>
+      <h2>Must support</h2>
+      <ul class="clean"><li>Real savings report + calculations for share model</li><li>Employer savings path via employee action (demo Act 3)</li><li>Audit trail for disputes</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknowns</p>
+      <h2>Dave + finance</h2>
+      <ul class="clean"><li>Definition of “verified” savings</li><li>Timing: booked vs claimed vs remitted</li><li>Multi-party restatements</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-gain" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Gainshare</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 05</p>
+      <h1>Gainshare</h1>
+      <p>Pots · splits · statements.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Gainshare engine</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Working model</span><span class="pill ">Not built</span><p style="margin:12px 0 0">Pot from employer savings alignment ($809 @ 50%). SM working case 25% → $202/hh/yr. Statements to advisors + HO rollup. Payments ops separate.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Rules sketched</p>
+      <h2>Known</h2>
+      <ul class="clean"><li>Exclusive gainshare posture for SM in GTM narrative</li><li>Broker-aligned vs not (older 20/30 cases) — current pitch uses 25% average</li><li>Maturity: time-to-initial &lt;30d · mature ~6mo (cheat sheet)</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2>Work with</h2>
+      <ul class="clean"><li>Fintech/payments for remittance</li><li>Partner finance ops (SM)</li><li>Legal for partner agreement economics</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-opp" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Opportunities</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 06</p>
+      <h1>Opportunities</h1>
+      <p>Advisor pipeline.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Opportunities (Partner CRM)</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">IA specified</span><span class="pill ">Not built</span><p style="margin:12px 0 0">Greg: method for tracking prospects → onboarding → implemented; HO special access. This is Partner OS core.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Stages</p>
+      <h2>Minimum</h2>
+      <ul class="clean"><li>Prospect</li><li>Intro set / held</li><li>Proposal / demo</li><li>Onboarding</li><li>Implemented</li><li>Producing savings</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2>Build options</h2>
+      <ul class="clean"><li>Custom on our tenancy (recommended long-term)</li><li>Thin CRM (HubSpot) + sync — faster P0, weaker PHI boundary discipline if mixed wrong</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="d-ten" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Domain · Tenancy</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Domain 07</p>
+      <h1>Tenancy & identity</h1>
+      <p>Person · org · role.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Tenancy & identity</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Site identity only</span><span class="pill ">Enterprise IdP no</span><p style="margin:12px 0 0">Site: people + access codes + sessions in D1. Enterprise: Person/Org/Role across CureData, SM HO, franchisee, sponsor, household. Long-term align with WBSID thinking from Waypoint OS.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Roles</p>
+      <h2>RBAC sketch</h2>
+      <table class="data"><tr><th>Role</th><th>Sees</th><th>PHI?</th></tr><tr><td>Coverage User</td><td>Own household</td><td>Yes own</td></tr><tr><td>Sponsor admin</td><td>Aggregates + roster tools</td><td>Limited / derived</td></tr><tr><td>Advisor / MC</td><td>Own book pipeline + $</td><td>Avoid raw PHI; use aggregates</td></tr><tr><td>SM Head Office</td><td>All franchisee rollups</td><td>Aggregates + oversight</td></tr><tr><td>CureData admin</td><td>Break-glass + support</td><td>Yes with audit</td></tr></table>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="integration" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration plane</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Plane 03</p>
+      <h1>Integration</h1>
+      <p>External kick-outs.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Integration plane</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Cataloged</span><span class="pill ">Almost none live for PHI</span><p style="margin:12px 0 0">Only production-ish external today: <strong>Resend</strong> for site access email. Payer/portal/EDI are designed constraints + concept UI.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Catalog</p>
+      <h2>Dive in</h2>
+
+      <div class="goal-list">
+        <button class="goal-btn" data-go="i-payer"><span class="num">01</span><div><strong>Payer patient-access APIs</strong><small>FHIR / member APIs</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="i-portal"><span class="num">02</span><div><strong>Patient portals</strong><small>Gap-fill connectors</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="i-edi"><span class="num">03</span><div><strong>EDI / eligibility / roster</strong><small>Sponsor scale</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="i-rx"><span class="num">04</span><div><strong>Pharmacy &amp; care data</strong><small>Price · coupon · directories</small></div><span class="arrow">→</span></button>
+        <button class="goal-btn" data-go="i-comms"><span class="num">05</span><div><strong>Comms &amp; payments</strong><small>Resend now · processor TBD</small></div><span class="arrow">→</span></button>
+      </div>
+
+    </section>
+    <section class="block">
+      <p class="label">Build vs buy</p>
+      <h2>Dave decision space</h2>
+      <ul class="clean"><li>Aggregation layer vs direct payer integrations first</li><li>Which 3–5 payers cover design-partner employers</li><li>Clearinghouse selection for EDI</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="i-payer" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration · Payers</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Int 01</p>
+      <h1>Payer patient-access APIs</h1>
+      <p>FHIR / member APIs.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Payer APIs</p>
+      <h2>Patient access</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill ">Not live</span><p style="margin:12px 0 0">Primary path for authorized claims/coverage/Rx. Per-payer app registration, member matching, refresh tokens, rate limits, production certification.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2>Work with</h2>
+      <ul class="clean"><li>Payer developer relations</li><li>Possibly FHIR aggregation vendor</li><li>Security review per app</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost/time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Months per payer is common</li><li>Prioritize by SM employer book mix</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="i-portal" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration · Portals</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Int 02</p>
+      <h1>Patient portals</h1>
+      <p>Gap-fill connectors.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Portals</p>
+      <h2>Member portals</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Concept UI on site</span><span class="pill ">No prod connector</span><p style="margin:12px 0 0">Site Connect flow shows myCigna / myuhc / MyBlue / Aetna style UX as concept — explicitly not storing passwords in concept walk.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Risk</p>
+      <h2>Dave should opine</h2>
+      <ul class="clean"><li>ToS / scraping risk</li><li>Credential handling policy</li><li>When portals are required vs API-only</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="i-edi" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration · EDI</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Int 03</p>
+      <h1>EDI / eligibility / roster</h1>
+      <p>Sponsor scale.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">EDI</p>
+      <h2>Eligibility & roster</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill ">Not started</span><p style="margin:12px 0 0">Sponsor-scale truth for who’s covered. 270/271, roster feeds, trading partner agreements.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2></h2>
+      <ul class="clean"><li>Clearinghouse</li><li>Employer HRIS export ops</li><li>TPA where relevant (Waypoint world experience exists operationally)</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="i-rx" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration · Rx/Care</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Int 04</p>
+      <h1>Pharmacy & care data</h1>
+      <p>Intelligence sources.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Rx & care</p>
+      <h2>Intelligence sources</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Research exists</span><span class="pill ">Licenses TBD</span><p style="margin:12px 0 0">Drug fill intelligence hierarchy researched in CureData archive. Production needs licensed price/coupon/channel data + care estimate/negotiation paths.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2></h2>
+      <ul class="clean"><li>Rx pricing data vendors</li><li>Cash-pay / coupon networks</li><li>Bill negotiation / advocacy partners (optional)</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="i-comms" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Integration · Comms</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Int 05</p>
+      <h1>Comms & payments</h1>
+      <p>Resend · processor.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Comms & pay</p>
+      <h2></h2>
+      <div class="card forest"><div style="margin:0"><span class="pill on">Resend live</span><span class="pill warn">Payments TBD</span><p style="margin:12px 0 0">Resend for verification/admin. Payments processor TBD for D2C/PEPM. SMS later for reach-out — PHI-in-message policy required.</p></div></div>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="control" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Control plane</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Plane 04</p>
+      <h1>Control</h1>
+      <p>Trust boundary.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Control plane</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill on">Principles written</span><span class="pill warn">Program not stood</span><p style="margin:12px 0 0">Trust stack strategy + architecture principles exist. SOC 2 / pen test / full IR program = future. Subprocessors page honest with TBD rows.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Non-negotiables</p>
+      <h2>Already locked in docs</h2>
+      <ul class="clean"><li>US PHI processing intent</li><li>BAA before vendor PHI</li><li>No train-on-customer-PHI for foundation models</li><li>Demo / design-partner ≠ prod PHI environments</li><li>Authorize before access</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who</p>
+      <h2>Work with</h2>
+      <ul class="clean"><li>HIPAA / security counsel</li><li>Cloud with BAA (AWS/Azure/GCP healthcare patterns)</li><li>SOC 2 auditor when ready</li><li>Pen test firm pre-scale</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost</p>
+      <h2>Program costs Dave knows</h2>
+      <ul class="clean"><li>Continuous logging/SIEM</li><li>Key management</li><li>IR retainers</li><li>Annual audits</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="components" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Component BOM</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Workbench</p>
+      <h1>Components C-01…C-15</h1>
+      <p>Bill of materials for standing.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">BOM</p>
+      <h2>Fifteen components — click in</h2>
+
+      <div class="goal-list">
+<button class="goal-btn" data-go="c-01"><span class="num">01</span><div><strong>Identity & access</strong><small>RBAC · MFA · SSO</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-02"><span class="num">02</span><div><strong>Connection broker</strong><small>Token vault · revoke</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-03"><span class="num">03</span><div><strong>Ingestion & normalize</strong><small>Claims/EOB/Rx pipelines</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-04"><span class="num">04</span><div><strong>Cure Cost Record store</strong><small>Encrypted US PHI</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-05"><span class="num">05</span><div><strong>Cura decision engine</strong><small>Rules + models</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-06"><span class="num">06</span><div><strong>Authorization & action</strong><small>JIT · outbound</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-07"><span class="num">07</span><div><strong>Savings ledger</strong><small>EE/ER audit</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-08"><span class="num">08</span><div><strong>Gainshare engine</strong><small>Splits · statements</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-09"><span class="num">09</span><div><strong>Partner OS</strong><small>Advisor + HO</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-10"><span class="num">10</span><div><strong>Sponsor OS</strong><small>Activate · report</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-11"><span class="num">11</span><div><strong>Comms fabric</strong><small>Email/SMS</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-12"><span class="num">12</span><div><strong>Billing</strong><small>D2C · PEPM</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-13"><span class="num">13</span><div><strong>Trust plane</strong><small>Audit · BAA · IR</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-14"><span class="num">14</span><div><strong>Env & release</strong><small>Demo≠prod</small></div><span class="arrow">→</span></button>
+<button class="goal-btn" data-go="c-15"><span class="num">15</span><div><strong>Observability</strong><small>SLO · DQ</small></div><span class="arrow">→</span></button>
+      </div>
+
+    </section>
+    <section class="block">
+      <p class="label">How to use with Dave</p>
+      <h2>Pricing worksheet</h2>
+      <div class="card forest"><div style="margin:0">Dave can assign rough $/weeks to each C-xx for P0–P3. We keep status honest: Built · Partial · Not built · Unknown.</div></div>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-01" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-01</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 01</p>
+      <h1>Identity & access</h1>
+      <p>People, orgs, roles, sessions, partner SSO, MFA.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Identity & access</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Site partial</span><span class="pill ">Enterprise IdP no</span><p style="margin:12px 0 0">People, orgs, roles, sessions, partner SSO, MFA.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Site: D1 people/codes/sessions</li><li>Admin allowlist jp@symmitri.ai + bsavage@curedata.ai</li><li>RBAC sketch for CU/CS/Advisor/HO</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>SSO provider for SM</li><li>SCIM needs</li><li>Break-glass procedure</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Okta/Azure AD/Google Workspace patterns</li><li>Auth0/Cognito class</li><li>Symmitri/Poma already on site auth</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>SSO + SCIM often underweighted</li><li>Support load from password resets</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-02" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-02</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 02</p>
+      <h1>Connection broker</h1>
+      <p>Vaulted tokens for payer/portal connections; lifecycle; revoke.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Connection broker</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill ">Not built</span><p style="margin:12px 0 0">Vaulted tokens for payer/portal connections; lifecycle; revoke.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>OAuth/token principle locked</li><li>No plaintext passwords at rest (principle)</li><li>Concept Connect UI on marketing site</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Vault product choice</li><li>Per-payer refresh quirks</li><li>Portal connector policy</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Cloud secret managers</li><li>Aggregation platforms</li><li>In-house connector team</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Highest risk engineering surface</li><li>Ongoing breakage ops</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-03" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-03</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 03</p>
+      <h1>Ingestion & normalize</h1>
+      <p>Pipelines from APIs/EDI/portals into CCR schema.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Ingestion & normalize</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill ">Not built</span><p style="margin:12px 0 0">Pipelines from APIs/EDI/portals into CCR schema.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Source classes known</li><li>Demo uses scripted costs</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Schema versioning</li><li>Backfill strategy</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Data eng partner</li><li>Payer-specific mappers</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Per-source mapper cost dominates</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-04" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-04</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 04</p>
+      <h1>Cure Cost Record store</h1>
+      <p>Encrypted US store for PHI records + retention/deletion.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Cure Cost Record store</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill ">Not built</span><p style="margin:12px 0 0">Encrypted US store for PHI records + retention/deletion.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>US region intent</li><li>Encryption at rest/transit required</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>DB choice</li><li>Retention periods</li><li>Deletion SLA</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>AWS/Azure/GCP with BAA</li><li>DB specialists</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Storage+backup+audit volume</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-05" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-05</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 05</p>
+      <h1>Cura decision engine</h1>
+      <p>Detect opportunities; queue decisions; assist with private models.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Cura decision engine</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Demo scripted</span><p style="margin:12px 0 0">Detect opportunities; queue decisions; assist with private models.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Rx/care/coverage cure patterns in demos</li><li>No train-on-customer-PHI rule</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Rules vs ML split</li><li>Evaluation harness</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Private LLM infra</li><li>Domain SMEs</li><li>Rx data licenses</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Model ops + eval is ongoing cost</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-06" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-06</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 06</p>
+      <h1>Authorization & action</h1>
+      <p>JIT auth + execute/message + outcome capture.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Authorization & action</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Legal concept</span><span class="pill ">Runtime no</span><p style="margin:12px 0 0">JIT auth + execute/message + outcome capture.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>JIT auth in trust stack</li><li>Outcome states in demos</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Which actions are automated vs human-in-loop</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Payer transaction APIs where exist</li><li>Ops vendors for advocacy</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Liability + exception handling</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-07" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-07</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 07</p>
+      <h1>Savings ledger</h1>
+      <p>EE/ER attribution, method, disputes.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Savings ledger</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Model numbers</span><p style="margin:12px 0 0">EE/ER attribution, method, disputes.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>$1618/$817/$809 positioned</li><li>Employer path narrative required by Greg</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Verified definition</li><li>Restatement rules</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Fin eng + actuarial-ish review</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Credibility = sales critical path</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-08" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-08</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 08</p>
+      <h1>Gainshare engine</h1>
+      <p>Pots, splits, statements, remittance.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Gainshare engine</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Model</span><p style="margin:12px 0 0">Pots, splits, statements, remittance.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>SM 25% working case</li><li>Partner agreement needed (Greg asked for NDA/MSA now)</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Statement cadence</li><li>Tax/reporting</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Payments + partner finance</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Ops heavy at scale</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-09" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-09</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 09</p>
+      <h1>Partner OS</h1>
+      <p>Advisor workspace + opportunity CRM + HO console + assets.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Partner OS</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">IA specified</span><p style="margin:12px 0 0">Advisor workspace + opportunity CRM + HO console + assets.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Greg franchisee agenda is the spec</li><li>Oct 1 / 20 franchisees / HO oversight</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>White-label depth</li><li>Offline/in-field needs</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Our app vs CRM hybrid</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>This is distribution scale unlock</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-10" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-10</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 10</p>
+      <h1>Sponsor OS</h1>
+      <p>Activation, roster/eligibility, reporting.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Sponsor OS</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Narrative pages</span><p style="margin:12px 0 0">Activation, roster/eligibility, reporting.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Benefit framing on site</li><li>Design-partner cohort language</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>HRIS connectors priority</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>EDI/HRIS integrators</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Each employer onboarding has services cost</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-11" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-11</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 11</p>
+      <h1>Comms fabric</h1>
+      <p>Email/SMS templates; PHI-safe patterns.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Comms fabric</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill on">Resend live</span><p style="margin:12px 0 0">Email/SMS templates; PHI-safe patterns.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Verification + admin email works</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>SMS vendor</li><li>PHI redaction rules</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Resend expand · Twilio class</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Throughput + compliance templates</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-12" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-12</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 12</p>
+      <h1>Billing</h1>
+      <p>D2C subscription, PEPM, pauses (2:1 policy).</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Billing</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Policy drafted in demos</span><span class="pill ">Processor TBD</span><p style="margin:12px 0 0">D2C subscription, PEPM, pauses (2:1 policy).</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>$9/hh preventive model in older demo docs</li><li>Sponsor PEPM placeholder $15</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Final price lock</li><li>Tax</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Stripe-class processor</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Dunning + pause logic complexity</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-13" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-13</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 13</p>
+      <h1>Trust plane</h1>
+      <p>Audit, SIEM, IR, BAA, subprocessors, questionnaires.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Trust plane</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill on">Docs strong</span><span class="pill warn">Controls partial</span><p style="margin:12px 0 0">Audit, SIEM, IR, BAA, subprocessors, questionnaires.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Trust pages drafts live</li><li>Subprocessors honest TBD</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>SOC 2 timing</li><li>Pen test scope</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Counsel · auditor · cloud</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Program cost is continuous</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-14" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-14</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 14</p>
+      <h1>Env & release</h1>
+      <p>Demo ≠ design-partner ≠ prod; CI/CD; flags.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Env & release</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill on">Site branch discipline</span><span class="pill ">PHI envs no</span><p style="margin:12px 0 0">Demo ≠ design-partner ≠ prod; CI/CD; flags.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>Dev branch rules with Poma</li><li>Presentation-clean flags on site</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>Data residency per env</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Platform eng</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Prevent demo/prod contamination</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="c-15" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">C-15</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Component 15</p>
+      <h1>Observability</h1>
+      <p>SLOs, tracing, data quality monitors, cost anomaly.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Status</p>
+      <h2>Observability</h2>
+      <div class="card forest"><div style="margin:0"><span class="pill warn">Site analytics D1</span><span class="pill ">PHI observe no</span><p style="margin:12px 0 0">SLOs, tracing, data quality monitors, cost anomaly.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Known</p>
+      <h2>What we know</h2>
+      <ul class="clean"><li>First-party journey analytics on site</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Unknown</p>
+      <h2>What we don't</h2>
+      <ul class="clean"><li>SLO definitions</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Who we could work with</p>
+      <h2>Options</h2>
+      <ul class="clean"><li>Datadog/Grafana class + DQ tools</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">Cost / time</p>
+      <h2>Levers</h2>
+      <ul class="clean"><li>Blind ops = outages + bad savings math</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="matrix" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Interaction matrix</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Workbench</p>
+      <h1>Interaction matrix</h1>
+      <p>Every click that isn’t pixels.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">How to read</p>
+      <h2>Interaction matrix</h2>
+      <div class="card forest"><div style="margin:0">Every non-pixel click: interaction → logic → data → external → deliverable → status. Extend as we build.</div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Matrix</p>
+      <h2>Living</h2>
+      <table class="data"><tr><th>Interaction</th><th>Logic</th><th>Data</th><th>External</th><th>Status</th></tr><tr><td>Site request/verify</td><td>Mint token · session</td><td>Email · device · IP</td><td>Resend</td><td>Built</td></tr><tr><td>Admin codes</td><td>CRUD codes · revoke</td><td>People · codes</td><td>—</td><td>Built (site)</td></tr><tr><td>Advisor apply</td><td>Cohort + interview flags</td><td>Franchisee profile</td><td>Email</td><td>Not built</td></tr><tr><td>Open employer door</td><td>Create Opportunity</td><td>Employer firmographics</td><td>Calendar optional</td><td>Not built</td></tr><tr><td>Employer activate</td><td>Sponsor tenant</td><td>Legal entity · plan year</td><td>E-sign</td><td>Not built</td></tr><tr><td>Employee connect</td><td>Agreement · broker</td><td>Member · payer · auth</td><td>Payer API/portal/EDI</td><td>Concept UI</td></tr><tr><td>Cura detect</td><td>Normalize · score</td><td>CCR</td><td>Price sources</td><td>Scripted demo</td></tr><tr><td>User authorize</td><td>JIT · execute</td><td>Decision · outcome $</td><td>Payer/Rx/care</td><td>Scripted demo</td></tr><tr><td>Recognize savings</td><td>Ledger write</td><td>EE/ER method</td><td>—</td><td>Model</td></tr><tr><td>Gainshare statement</td><td>Split rules</td><td>Pot · % · book</td><td>Payments</td><td>Model</td></tr><tr><td>HO oversee</td><td>Rollup ACL</td><td>All franchisee ops</td><td>—</td><td>Asked · not built</td></tr><tr><td>Employer report</td><td>Aggregate path</td><td>Adoption · ER $</td><td>Email/export</td><td>Designed</td></tr></table>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="vendors" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Vendors & partners</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Workbench</p>
+      <h1>Who we could work with</h1>
+      <p>Classes for standing + cost.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Lens</p>
+      <h2>Who we could work with</h2>
+      <div class="card forest"><div style="margin:0">Not endorsements — classes of partners Dave can price and shortlist.</div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Classes</p>
+      <h2>Standing the enterprise app</h2>
+      <table class="data"><tr><th>Class</th><th>Why</th><th>Examples of class</th><th>Status</th></tr><tr><td>Product craft (site/demo)</td><td>Experience plane</td><td>Jonathan Poma / Symmitri</td><td>Active</td></tr><tr><td>Platform / CTO advisory</td><td>Sequence · cost · vendors</td><td>Dave Probst</td><td>Active exploration</td></tr><tr><td>Cloud + security</td><td>PHI host · KMS · BAA</td><td>Hyperscaler healthcare patterns</td><td>TBD</td></tr><tr><td>Payer connectivity</td><td>Patient access / aggregation</td><td>Direct APIs and/or aggregators</td><td>TBD</td></tr><tr><td>EDI / clearinghouse</td><td>Eligibility · roster</td><td>Traditional clearinghouses</td><td>TBD</td></tr><tr><td>Rx / care data</td><td>Cure intelligence</td><td>Pricing · coupon · directory licensors</td><td>TBD</td></tr><tr><td>Payments</td><td>D2C/PEPM · remittance</td><td>PCI processors</td><td>TBD</td></tr><tr><td>Identity</td><td>SSO/SCIM for SM</td><td>Okta-class</td><td>TBD</td></tr><tr><td>Counsel</td><td>BAA · Connection Agmt · partner MSA</td><td>Healthcare counsel</td><td>In motion / needed</td></tr><tr><td>Security assurance</td><td>SOC 2 · pen test</td><td>Audit firms</td><td>Later phase</td></tr><tr><td>Implementation services</td><td>Employer onboarding at scale</td><td>Ops partners</td><td>Later</td></tr></table>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="phasing" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Phasing</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Workbench</p>
+      <h1>P0–P3 phasing</h1>
+      <p>Quote cost & time sanely.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Rule</p>
+      <h2>Quote per phase</h2>
+      <div class="card forest"><div style="margin:0">Never one blob. P0–P3 below.</div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Phases</p>
+      <h2>Standing sequence</h2>
+      <table class="data"><tr><th>Phase</th><th>Outcome</th><th>PHI?</th><th>Components heavy</th><th>SM milestone</th></tr><tr><td>P0</td><td>Clickable founders demo + site craft</td><td>No</td><td>Experience, partial C-09 scripted</td><td>Aug 13 Beth/Dennis</td></tr><tr><td>P1</td><td>Design-partner production slice</td><td>Yes limited</td><td>C-02…C-07, C-10, C-13</td><td>First employers + employees</td></tr><tr><td>P2</td><td>Partner OS + HO + gainshare statements</td><td>Yes</td><td>C-08, C-09, C-01 SSO</td><td>Oct 1 · 20 franchisees</td></tr><tr><td>P3</td><td>Broad payers + EDI scale + SOC 2 path</td><td>Yes</td><td>All + more integrations</td><td>April window / scale</td></tr></table>
+
+    </section>
+    <section class="block">
+      <p class="label">Dave worksheet</p>
+      <h2>Fill later</h2>
+      <ul class="clean"><li>$/phase rough</li><li>Calendar weeks</li><li>Dependencies (legal, payer apps)</li><li>Team shape (FTEs vs firms)</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="share" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Share</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Ops</p>
+      <h1>Share with Dave</h1>
+      <p>Simple back-and-forth.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">Simple sharing</p>
+      <h2>How Brian + Dave collaborate without friction</h2>
+      <div class="card forest"><div style="margin:0"><p style="margin:0 0 10px"><strong>Recommended now (simplest):</strong> Shared OneDrive folder <code>CureData / Dave-Probst-PSM/</code> containing this HTML + a <code>QUESTIONS.md</code> / email thread. Dave downloads, annotates, replies; we rev the HTML (V1.1, V1.2…).</p>
+    <p style="margin:0 0 10px"><strong>Better in 48h:</strong> Private GitHub repo (or folder under <code>pomajp/curedata-marketing-site</code> docs) — Dave as collaborator — version history + issues for questions.</p>
+    <p style="margin:0 0 10px"><strong>Nicest UX:</strong> Static host on Vercel/Netlify (password or private) — needs Vercel team access approved (currently blocked for Brian’s previews).</p>
+    <p style="margin:0"><strong>Not recommended yet:</strong> Notion rewrite — loses the interactive depth unless we invest; keep HTML as SSoT.</p></div></div>
+
+    </section>
+    <section class="block">
+      <p class="label">Operating loop</p>
+      <h2>Update rhythm</h2>
+      <ul class="clean"><li>Dave emails questions → we add to Open Questions + deepen the clicked room</li><li>Each build week: mark statuses Built/Partial on the matrix</li><li>Never claim a vendor live until subprocessor + BAA row exists</li></ul>
+
+    </section>
+    <section class="block">
+      <p class="label">File locations</p>
+      <h2>SSoT</h2>
+      <ul class="clean"><li><code>03_Active_Demo/partners/dave-probst-PLATFORM-STANDING-MAP-V1.html</code> (this file)</li><li>Schooley hub button: <strong>Dave’s Data</strong></li><li>Companion: <code>DAVE-PLATFORM-STANDING-MAP.md</code></li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+<div id="questions" class="view room">
+  <div class="room-bar">
+    <button class="back" data-go="hub"><span>←</span> Hub</button>
+    <div class="chip">Questions</div>
+  </div>
+  <div class="room-hero">
+    <div class="room-hero-inner">
+      <p class="eyebrow">Ops</p>
+      <h1>Open questions</h1>
+      <p>Dave replies; we deepen rooms.</p>
+    </div>
+  </div>
+  <div class="room-body">
+    <section class="block">
+      <p class="label">For Dave</p>
+      <h2>Start here — reply in email; we’ll update the map</h2>
+
+      <div class="qbox">
+        <label class="q"><input type="checkbox" data-q="q1"/> <span>P0–P3 phasing — agree, or reshape?</span></label>
+        <label class="q"><input type="checkbox" data-q="q2"/> <span>Build vs buy aggregation layer for payer access?</span></label>
+        <label class="q"><input type="checkbox" data-q="q3"/> <span>Which cloud + BAA posture do you prefer day one?</span></label>
+        <label class="q"><input type="checkbox" data-q="q4"/> <span>Minimum Partner OS for 20 franchisees Oct 1?</span></label>
+        <label class="q"><input type="checkbox" data-q="q5"/> <span>Advisor PHI boundary — aggregates only?</span></label>
+        <label class="q"><input type="checkbox" data-q="q6"/> <span>What’s a sane FTE + firm mix for P1?</span></label>
+        <label class="q"><input type="checkbox" data-q="q7"/> <span>What did we miss that’s obvious to a Fiserv CTO?</span></label>
+      </div>
+
+    </section>
+    <section class="block">
+      <p class="label">Brian / CureData</p>
+      <h2>We still owe</h2>
+      <ul class="clean"><li>Partner NDA/MSA draft to Greg (he asked)</li><li>Payer priority list from likely design-partner employers</li><li>Savings methodology one-pager for employer path</li></ul>
+
+    </section>
+
+    <div class="room-nav">
+      <button data-go="hub">← Hub</button>
+      <button class="ghost" data-go="questions">Open questions →</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const KEY='cd-dave-psm-v2';
+  function go(id){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const el=document.getElementById(id);
+    if(el){ el.classList.add('active'); window.scrollTo(0,0); history.replaceState(null,'','#'+id); }
+  }
+  document.addEventListener('click',e=>{
+    const t=e.target.closest('[data-go]');
+    if(t){ e.preventDefault(); go(t.getAttribute('data-go')); }
+  });
+  // persist question checks
+  try{
+    const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+    document.querySelectorAll('input[data-q]').forEach(inp=>{
+      inp.checked=!!saved[inp.getAttribute('data-q')];
+      inp.addEventListener('change',()=>{
+        const s=JSON.parse(localStorage.getItem(KEY)||'{}');
+        s[inp.getAttribute('data-q')]=inp.checked;
+        localStorage.setItem(KEY,JSON.stringify(s));
+      });
+    });
+  }catch(e){}
+  if(location.hash){ const id=location.hash.slice(1); if(document.getElementById(id)) go(id); }
+</script>
+
+</body>
+</html>
